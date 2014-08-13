@@ -6,8 +6,6 @@ class SteppingPiece < Piece
     legal_moves_array = []
     
     self.offsets.each do |coord|
-      # p coord
-      # p "here's what goes into legal_moves_array: #{[(coordinates[0] + coord[0]), (coordinates[1] + coord[1])]}"
       legal_moves_array << [(coordinates[0] + coord[0]), (coordinates[1] + coord[1])]
     end
 
@@ -30,5 +28,4 @@ class SteppingPiece < Piece
     p @legal_moves
     #(legal_moves_array - same_color)
   end
-
 end

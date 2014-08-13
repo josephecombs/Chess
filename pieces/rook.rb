@@ -8,7 +8,7 @@ class Rook < SlidingPiece
   end
 
   def move_dirs
-    [:horizontal, :vertical]
+    [:line]
   end
   
   

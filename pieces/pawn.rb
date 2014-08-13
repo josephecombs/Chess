@@ -7,4 +7,8 @@ class Pawn < Piece
     @color = color
   end
   
+  def update_view
+  end
+  
+  
 end

@@ -8,7 +8,7 @@ class Queen < SlidingPiece
   end
 
   def move_dirs
-    [:horizontal, :vertical, :diagonal]
+    [:line, :diagonal]
   end
   
   
