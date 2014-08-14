@@ -35,18 +35,8 @@ class Board
     # @tiles[1] = Array.new(8, nil)
     # @tiles[4][4] = Pawn.new(self, :black, [4, 4])
     # @tiles[6] = generate_pawn_row(:black, 6)
-    @tiles[7] = generate_home_row(:black, 7)
-    
-    # @tiles[0] = Array.new(8, nil)
-    # @tiles[1] = Array.new(8, nil)
-    # @tiles[2] = Array.new(8, nil)
-    # @tiles[3] = Array.new(8, nil)
-    # @tiles[4] = Array.new(8, nil)
-    # @tiles[5] = Array.new(8, nil)
-    # @tiles[6] = Array.new(8, nil)
-    # @tiles[7] = Array.new(8, nil)
-    #
-    # @tiles[4][4] = Rook.new(self, :white, [4, 4])
+    # @tiles[7] = generate_home_row(:black, 7)
+    @tiles[7][6] = King.new(self, :black, [7, 6])
   end
   
   def display_state
@@ -54,7 +44,6 @@ class Board
       row_array =[]
       @tiles[row_i].each do |tile|
         row_array << (tile.nil? ? " " : tile.to_s)
-        # row_array << "X"
       end
       puts "#{row_i+1} " + row_array.join
     end
@@ -96,6 +85,15 @@ class Board
     @tiles[coord2[0]][coord2[1]].coordinates = coord2
   end
   
+  def move_2(coord1, coord2, board)
+    # p "@tiles[coord1[0]][coord1[1]].legal_moves #{@tiles[coord1[0]][coord1[1]].legal_moves}"
+    board.tiles[coord2[0], coord2[1]] = board.tiles[coord1[0], coord1[1]]
+    board.tiles[coord1[0], coord1[1]] = nil
+    p "piece before failure #{board.tiles[coord2[0], coord2[1]]}"
+    board.tiles[coord2[0], coord2[1]].coordinates = coord2 if board.tiles[coord2[0], coord2[1]].compact.count > 0
+    board
+  end
+  
   def update_all_views
     @tiles.each do |row|
       row.each do |piece|
@@ -118,12 +116,39 @@ class Board
   end
   
   def is_in_check?(color)
-    tiles.flatten.compact.each do |piece|
-        
+    tiles.flatten.compact.each do |piece|     
       return true if piece.legal_moves.include?(find_king(color))
-        
     end
-    
     false
+  end
+  
+  def is_in_checkmate?(color)
+    #dupe board and iterate through each given color piece's legal moves
+    first_dup = self.dup
+    p "first dup #{first_dup}"
+    p "fits dup.tiles#{first_dup.tiles}"
+    p "self #{self}"
+    some_symbol = color
+    first_dup.tiles.each do |row|
+      p row
+      row.each do |piece|
+        next if piece.nil?
+        next if piece.color != some_symbol
+        
+        #dupe board again so you dont mess up what you're iterating thru
+        second_dup = first_dup.dup
+        #get from_coordinates
+        from_coordinates = piece.coordinates
+        p "from coordinates #{from_coordinates}"
+        piece.legal_moves.each do |coord|
+          next if coord.nil?
+          second_dup = second_dup.move_2(from_coordinates, coord, second_dup)
+          second_dup.update_all_views
+          return false if !second_dup.is_in_check?(color)
+        end
+      end
+    end
+    "The game is over! #{color} has been checkmated!"
+    return true
   end
 end

@@ -26,23 +26,26 @@ class Chess
       
       args = get_input
       
-      #pick up here f args[0][0] == "l"
-      a = @board.dup
-      
-      a.tiles[0][0].color = :black
-      
-      p "OMG Major test"
-      p @board.tiles[0][0].color
-      p a.tiles[0][0].color
-      
-      
-
       from_coord = process_input(args.first)
+      #from_coord = process_input(args[0])
       to_coord = process_input(args.last)
+      #to_coord = process_input(args[1])
       #p "from_coord #{from_coord}"
       #p "to_coord #{to_coord}"
-      unless @board.is_legal_move?(from_coord, to_coord)
+      
+      #dupe board and check its state after player makes a move
+      dupe_board = @board.dup
+       
+      unless dupe_board.is_legal_move?(from_coord, to_coord)
         puts "Proposed move is illegal."
+        next
+      end
+      
+      #see what happens when you try to move as the player wishes
+      dupe_board.move(from_coord, to_coord)
+      dupe_board.update_all_views
+      if dupe_board.is_in_check?(current_turn_color)
+        puts "You have made a move that has placed your own king into check."
         next
       end
       
@@ -50,13 +53,14 @@ class Chess
       #update the legal_moves array for each tile on the board
       @board.update_all_views
       
+      #this switches the color of the current turn so we can do some further board state checks
       current_turn_color = [:white, :black][counter % 2]
       if @board.is_in_check?(current_turn_color)
         puts "#{current_turn_color} King is in check!"
+        if @board.is_in_checkmate?(current_turn_color)
+          over = true
+        end
       end
-      #move the piece from one location to another in the board object if it is legal
-      
-      #p "@board[to_coord].legal_moves #{@board[to_coord].legal_moves}"
     end
   end
   

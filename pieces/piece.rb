@@ -14,7 +14,9 @@ class Piece
     @string_representation
   end
   
-
+  def color
+    @color
+  end
 
   def inside_bounds?(coord)
     # p coord
