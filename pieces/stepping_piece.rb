@@ -19,13 +19,9 @@ class SteppingPiece < Piece
     end
     # p "Here's the new legal moves array after filtering"
     # p (legal_moves_array - same_color)
-    p "pre"
-    p @legal_moves
-    p legal_moves_array
-    p same_color
+
     @legal_moves = (legal_moves_array - same_color)
-    p "post"
-    p @legal_moves
+
     #(legal_moves_array - same_color)
   end
 end

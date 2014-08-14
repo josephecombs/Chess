@@ -1,7 +1,7 @@
 # require './stepping_piece.rb'
 
 class King < SteppingPiece
-  attr_accessor :string_representation, :color
+  attr_accessor :string_representation, :color, :board
   def initialize(board, color, coordinates)
     @string_representation = "K"
     @color = color

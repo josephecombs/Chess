@@ -2,75 +2,55 @@
 
 class SlidingPiece < Piece
 
-  def populate_diagonal_offsets
-    offsets = Array.new (4) { Array.new }
-    
-    [[1,1], [-1,1], [-1,-1], [1,-1]].each_with_index do |offset, i|
-      1.upto(7) { |j| offsets[i] << offset.map{|o| o * j } }
+  def diagonal_offsets
+    diags = [[1,1], [-1,1], [-1,-1], [1,-1]]
+    generate_offset_vectors diags
+  end
+
+  def line_offsets
+    lines = [[0,1],[-1,0],[0,-1],[1,0]]
+    generate_offset_vectors lines
+  end
+
+  def generate_offset_vectors(dirs)
+    offsets = dirs.map do |offset|
+      (1..7).to_a.map do |multiplier| 
+        [offset.first * multiplier, offset.last * multiplier]
+      end
     end
-    
     offsets
   end
-  
-  def populate_line_offsets
-    offsets = Array.new (4) { Array.new }
-    
-    [[0,1],[-1,0],[0,-1],[1,0]].each_with_index do |offset, i|
-      1.upto(7) { |j| offsets[i] << offset.map{|o| o*j} }
-    end
-    
-    offsets
-    
-  end
-  
+
   def update_view
-    grand_offsets = []
-    if move_dirs.include?(:line)
-       grand_offsets.concat(populate_line_offsets) 
+    grand_offsets = offsets
+    grand_offsets.each do |row|
+      row.map! do |offset|
+        (offset.zip(@coordinates)).map { |el| el.first + el.last }
+      end
     end
-    
-    if move_dirs.include?(:diagonal)
-       grand_offsets.concat(populate_diagonal_offsets) 
-    end
-    
-    #filter out of bounds coordinates from each ray
-    grand_offsets.each do |ray|
-      ray.delete_if { |coord| !inside_bounds?(coord) }
-    end
-    
+    temp_positions = grand_offsets
+    temp_positions.map!{|ray| ray.select{ |pos| inside_bounds?(pos) } }
     end_offsets = []
-    
+  
     grand_offsets.each do |ray|
-      jump = false
-      next if jump
       ray.each do |coord|
-        
-        if @board.tiles[coord[0]][coord[1]].nil?
+        if @board[coord].nil?
           #shovel always if you hit a nil square
-          end_offsets << [coord[0]][coord[1]]
-        else
-          #this is the case where an opponent's piece is hit
-          if @board.tiles[coord[0]][coord[1]].color != self.color
-            end_offsets << [coord[0]][coord[1]]
-            jump = true
-          else #this is the case when your own piece is hit
-            jump = true
+          end_offsets << coord
+        else #square is occupied
+          #p "square is occupied"
+          if @board[coord].color != self.color #by enemy
+            end_offsets << coord
           end
+          #cannot continue adding from ray
+          break
         end
       end
     end
-    
-    legal_moves_array = []
-    
-    grand_offsets.each do |ray|
-      
-      
-      legal_moves_array << [(coordinates[0] + coord[0]), (coordinates[1] + coord[1])]
-    end
-    
-    
+        
+    # p "end_offsets: #{end_offsets}, color: #{color}, position: #{coordinates}, class: #{self.class}"
+    @legal_moves = end_offsets
     end_offsets
-    
   end
-  
+
 end

@@ -3,7 +3,7 @@
 class Piece
   attr_accessor :coordinates, :board, :color, :string_representation, :legal_moves
   
-  def initializer(board, color, coordinates)
+  def initialize(board, color, coordinates)
     @board = board
     @color = color
     @coordinates = coordinates
@@ -13,8 +13,11 @@ class Piece
   def to_s
     @string_representation
   end
+  
+
 
   def inside_bounds?(coord)
+    # p coord
     coord.first.between?(0, 7) && coord.last.between?(0, 7)
   end
   

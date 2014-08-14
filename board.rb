@@ -9,16 +9,44 @@ class Board
     update_all_views
   end
   
+  def dup
+    new_board = Board.new
+
+    @tiles.each do |row|
+      row.each do |piece|
+        next if piece.nil?
+        p piece
+        piece.class.new(new_board, piece.color, piece.coordinates)
+        p piece
+      end
+    end
+
+    new_board
+  end
+  
   def [](coordinates)
-    @tiles[coordinates]
+    #coordinates => [4,5]
+    @tiles[coordinates.first][coordinates.last]
   end
   
   def generate_starting_tiles
     @tiles[0] = generate_home_row(:white, 0)
-    #@tiles[1] = generate_pawn_row(:white, 1)
-    @tiles[1] = Array.new(8, nil)
-    @tiles[6] = generate_pawn_row(:black, 6)
+    # @tiles[1] = generate_pawn_row(:white, 1)
+    # @tiles[1] = Array.new(8, nil)
+    # @tiles[4][4] = Pawn.new(self, :black, [4, 4])
+    # @tiles[6] = generate_pawn_row(:black, 6)
     @tiles[7] = generate_home_row(:black, 7)
+    
+    # @tiles[0] = Array.new(8, nil)
+    # @tiles[1] = Array.new(8, nil)
+    # @tiles[2] = Array.new(8, nil)
+    # @tiles[3] = Array.new(8, nil)
+    # @tiles[4] = Array.new(8, nil)
+    # @tiles[5] = Array.new(8, nil)
+    # @tiles[6] = Array.new(8, nil)
+    # @tiles[7] = Array.new(8, nil)
+    #
+    # @tiles[4][4] = Rook.new(self, :white, [4, 4])
   end
   
   def display_state
@@ -34,7 +62,7 @@ class Board
   end
   
   def generate_pawn_row(color, row_num)
-    pawn_row = Array.new(8) { |col_num| Pawn.new(@board, color, [row_num, col_num] ) }
+    pawn_row = Array.new(8) { |col_num| Pawn.new(self, color, [row_num, col_num] ) }
     pawn_row
   end
   
@@ -62,6 +90,7 @@ class Board
   end
   
   def move(coord1, coord2)
+    # p "@tiles[coord1[0]][coord1[1]].legal_moves #{@tiles[coord1[0]][coord1[1]].legal_moves}"
     @tiles[coord2[0]][coord2[1]] = @tiles[coord1[0]][coord1[1]]
     @tiles[coord1[0]][coord1[1]] = nil
     @tiles[coord2[0]][coord2[1]].coordinates = coord2
@@ -70,11 +99,31 @@ class Board
   def update_all_views
     @tiles.each do |row|
       row.each do |piece|
-        p piece
+        #p piece.class
         next if piece.nil?
-        next unless (piece.is_a?(Knight) || piece.is_a?(King))
+        # next unless (piece.is_a?(Rook) || piece.is_a?(Queen) || piece.is_a?(Bishop) || piece.is_a?(Knight) || piece.is_a?(King) || piece.is_a?(Pawn))
+        #next unless (piece.is_a?(Knight) || piece.is_a?(King) || piece.is_a?(Queen) || piece.is_a?(Rook))
         piece.update_view
       end
     end
+  end
+  
+  def find_king(color)
+    tiles.each do |row|
+      row.each do |piece|
+        next if piece.nil?
+        return piece.coordinates if piece.is_a?(King) && piece.color == color
+      end
+    end
+  end
+  
+  def is_in_check?(color)
+    tiles.flatten.compact.each do |piece|
+        
+      return true if piece.legal_moves.include?(find_king(color))
+        
+    end
+    
+    false
   end
 end
